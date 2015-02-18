@@ -76,7 +76,7 @@ class CompressionPlugin extends AbstractPlugin {
             if (shouldCompress(context.responseCode)) {
                 bytes = compressBytes(bytes, outEncoding)
                 /// add headers to real Exchange
-                context.responseHeaders.add("Content-Encoding", outEncoding)
+                context.responseHeaders.put("Content-Encoding", [outEncoding])
             }
         bytes
     }
@@ -87,7 +87,8 @@ class CompressionPlugin extends AbstractPlugin {
         /// wrap the input if needed
         def inEncoding = context.requestHeaders["Content-Encoding"]
         def instream
-        if (inEncoding)
+        if (inEncoding) {
+            inEncoding = inEncoding[0]
             switch (inEncoding) {
                 case "gzip":
                     instream = new GZIPInputStream(inputStream)
@@ -100,6 +101,7 @@ class CompressionPlugin extends AbstractPlugin {
                 default:
                     break;
             }
+        }
 
         if (instream) {
             EventManager.instance().publish(Events.FilterProcessing, [

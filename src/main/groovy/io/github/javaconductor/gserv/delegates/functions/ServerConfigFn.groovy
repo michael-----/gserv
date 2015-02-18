@@ -206,7 +206,7 @@ trait ServerConfigFn {
                 log.trace("basicAuth before(): userPswd:$userPswd");
                 if (!userPswd || userPswd.length < 2) {
                     log.trace("basicAuth before(): userPswd:$userPswd");
-                    (requestContext).responseHeaders.put("WWW-Authenticate", "Basic realm=$realm")
+                    (requestContext).responseHeaders.put("WWW-Authenticate", ["Basic realm=$realm"])
                     error(401, "Authentication Required");
                 } else {
                     def bAuthenticated = _authenticated(userPswd[0], userPswd[1], requestContext, challengeFn);
@@ -270,7 +270,7 @@ trait ServerConfigFn {
             InputStream is = getFile(value('staticRoots'), filename)
             if (is) {
                 def sz = is.available();
-                requestContext.responseHeaders.put("Content-Type", mimeType)
+                requestContext.responseHeaders.put("Content-Type", [mimeType])
                 requestContext.sendResponseHeaders(200, sz)
                 IOUtils.copy(is, requestContext.responseBody)
             } else {

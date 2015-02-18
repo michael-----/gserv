@@ -62,7 +62,7 @@ class StaticFileHandler {
             InputStream is = getFile(_staticRoots, filename)
             if (is) {
                 def sz = is.available();
-                requestContext.responseHeaders.add("Content-Type", mimeType)
+                requestContext.responseHeaders.put("Content-Type", [mimeType])
                 requestContext.sendResponseHeaders(200, sz)
                 IOUtils.copy(is, requestContext.responseBody)
             } else {

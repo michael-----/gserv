@@ -7,13 +7,13 @@ import java.security.Principal
  */
 interface RequestContext {
 
-    Map<String, String> getRequestHeaders()
+    Map<String, List> getRequestHeaders()
 
-    void setRequestHeaders(Map<String, String> requestHeaders)
+    void setRequestHeaders(Map<String, List> requestHeaders)
 
-    Map<String, String> getResponseHeaders()
+    Map<String, List> getResponseHeaders()
 
-    void setResponseHeaders(Map<String, String> responseHeaders)
+    void setResponseHeaders(Map<String, List> responseHeaders)
 
     InputStream getRequestBody()
 

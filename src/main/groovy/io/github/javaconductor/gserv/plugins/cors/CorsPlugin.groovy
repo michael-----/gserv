@@ -49,14 +49,14 @@ class CorsPlugin extends AbstractPlugin {
 
             case "OPTIONS":
                 // add header Access-Control-Allow-Origin, Access-Control-Allow-Methods, Access-Control-Allow-Headers, Access-Control-Max-Age
-                requestContext.responseHeaders.add("Access-Control-Allow-Origin", "*")
-                requestContext.responseHeaders.add("Access-Control-Allow-Methods", "OPTIONS,GET,PUT,POST,DELETE,HEAD")
-                requestContext.responseHeaders.add("Access-Control-Allow-Headers", "*")
-                requestContext.responseHeaders.add("Allow", "OPTIONS,GET,PUT,POST,DELETE,HEAD")
+                requestContext.responseHeaders.put("Access-Control-Allow-Origin", ["*"])
+                requestContext.responseHeaders.put("Access-Control-Allow-Methods", ["OPTIONS,GET,PUT,POST,DELETE,HEAD"])
+                requestContext.responseHeaders.put("Access-Control-Allow-Headers", ["*"])
+                requestContext.responseHeaders.put("Allow", ["OPTIONS,GET,PUT,POST,DELETE,HEAD"])
 
                 def entry //= getHostEntry( exchange.requestURI.host )
                 def maxAge = entry?.maxAge ?: (corsConfig?.maxAge ?: 3600)
-                requestContext.responseHeaders.add("Access-Control-Max-Age", "" + maxAge)
+                requestContext.responseHeaders.put("Access-Control-Max-Age", ["" + maxAge])
 
                 /// send 200 with header
                 def resp = new JsonBuilder([cors: [respones: 'OK']]).toPrettyString();
@@ -64,6 +64,7 @@ class CorsPlugin extends AbstractPlugin {
                 requestContext.sendResponseHeaders(200, resp.bytes.length)
                 requestContext.responseBody.write(resp.bytes);
                 requestContext.responseBody.close()
+                requestContext.close()
                 requestContext
                 break;
 
@@ -73,13 +74,13 @@ class CorsPlugin extends AbstractPlugin {
                 // if found add the "Access-Control-Allow-Origin: *" header to response
                 if (origin) {
 //                    println "CorsPlugin filter: Allowing Origin: $origin"
-                    requestContext.responseHeaders.add("Access-Control-Allow-Methods", "OPTIONS,GET,PUT,POST,DELETE,HEAD")
-                    requestContext.responseHeaders.add("Access-Control-Allow-Origin", "*")
+                    requestContext.responseHeaders.put("Access-Control-Allow-Methods", ["OPTIONS,GET,PUT,POST,DELETE,HEAD"])
+                    requestContext.responseHeaders.put("Access-Control-Allow-Origin", ["*"])
                 } else {
                     //                  println "CorsPlugin filter: No Origin Header."
                 }
 //                println "CorsPlugin Filter: Calling chain"
-                nextFilter()
+
                 requestContext
                 break;
         }
@@ -94,38 +95,40 @@ class CorsPlugin extends AbstractPlugin {
                 String origin = requestContext.requestHeaders.get("Origin")
                 if (!origin) {
                     log.trace("CorsPlugin.listHandler():No ORIGIN header for OPTIONS method.")
-                    nextFilter()
-                    return
+                    //requestContext.close()
+                    return requestContext
                 }
-                def host = originToHost(origin)
+                def host = originToHost(origin[0])
                 log.trace("CorsPlugin.listHandler():ORIGIN header for OPTIONS method: $origin")
                 log.trace("CorsPlugin.listHandler():HOST: $host")
 
-                def accessReqMethod = requestContext.requestHeaders.get("Access-Control-Request-Method")
+                def (accessReqMethod) = requestContext.requestHeaders.get("Access-Control-Request-Method")
                 def accessReqHeaders = requestContext.requestHeaders.get("Access-Control-Request-Headers")
 
                 // if found add the "Access-Control-Allow-Origin: $origin" header to response
-                def ok = corsConfig.hasAccess(host, accessReqMethod, accessReqHeaders)
+                def ok = corsConfig.hasAccess(host, accessReqMethod, accessReqHeaders[0])
                 // def ok = checkListFn(corsConfig, origin, accessReqMethod, accessReqHeaders)
                 log.trace "CorsPlugin.listHandler(): $origin can do $accessReqMethod = ${ok}"
                 if (ok) {
                     def cfgForHost = corsConfig.findOriginConfig(host)
                     // send back the allow headers
-                    requestContext.responseHeaders.add("Access-Control-Allow-Origin", origin)
-                    requestContext.responseHeaders.add("Access-Control-Allow-Methods", cfgForHost.methods.join(","))
-                    requestContext.responseHeaders.add("Access-Control-Allow-Headers", accessReqHeaders)
+                    requestContext.responseHeaders.put("Access-Control-Allow-Origin", [origin])
+                    requestContext.responseHeaders.put("Access-Control-Allow-Methods", [cfgForHost.methods.join(",")])
+                    requestContext.responseHeaders.put("Access-Control-Allow-Headers", [accessReqHeaders])
 
                     def maxAge = cfgForHost?.maxAge ?: (corsConfig?.maxAge ?: 3600)
-                    requestContext.responseHeaders.add("Access-Control-Max-Age", maxAge)
+                    requestContext.responseHeaders.put("Access-Control-Max-Age", [maxAge as String])
 
                     /// send response
                     requestContext.sendResponseHeaders(200, 0)
                     requestContext.responseBody.close()
+                    requestContext.close()
 
                 } else { // not ok
                     /// send 403 Forbidden
                     requestContext.sendResponseHeaders(403, 0)
                     requestContext.responseBody.close()
+                    requestContext.close()
                 }
                 requestContext
                 break;
@@ -136,8 +139,7 @@ class CorsPlugin extends AbstractPlugin {
                 def originList = requestContext.requestHeaders.get("Origin");
                 if (!originList) {
                     log.trace("CorsPlugin.listHandler():No ORIGIN header for OPTIONS method.")
-                    nextFilter()
-                    return
+                    return requestContext
                 }
                 def origin = originList[0];
                 def host = originToHost(origin)
@@ -147,19 +149,19 @@ class CorsPlugin extends AbstractPlugin {
                 log.trace "CorsPlugin.listHandler(): $origin can do ${requestContext.requestMethod} = ${ok}"
                 if (ok) {
                     def cfgForHost = corsConfig.findHostConfig(host)
-                    requestContext.responseHeaders.add("Access-Control-Allow-Origin", (String) origin)
+                    requestContext.responseHeaders.put("Access-Control-Allow-Origin", [(String) origin])
                     def maxAge = cfgForHost?.maxAge ?: (corsConfig?.maxAge ?: 3600)
-                    requestContext.responseHeaders.add("Access-Control-Max-Age", "" + maxAge)
+                    requestContext.responseHeaders.put("Access-Control-Max-Age", ["" + maxAge])
                     log.trace("CorsPlugin.listHandler():Response HEADERS: ${requestContext.responseHeaders}")
-                    nextFilter()
-                    return
+                    //     requestContext.sendResponseHeaders(200, 0)
+                    // requestContext.close()
+                    requestContext
                 } else {
                     /// send 403 Forbidden
                     requestContext.sendResponseHeaders(statusCode, 0)
-                    requestContext.responseBody.close()
-                    return
+                    requestContext.close()
+                    requestContext
                 }
-                requestContext;
                 break;
         }
     }

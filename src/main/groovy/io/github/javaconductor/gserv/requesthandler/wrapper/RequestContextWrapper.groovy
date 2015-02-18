@@ -37,7 +37,6 @@ import io.github.javaconductor.gserv.requesthandler.RequestContext
 @Log4j
 class RequestContextWrapper extends AbstractRequestContext {
     RequestContext _context
-    Map _requestHdrs = [:], _responseHdrs = [:]
     int _code
     InputStream _originalInputStream
     OutputStream _originalOutputStream, _responseBody
@@ -129,7 +128,7 @@ class RequestContextWrapper extends AbstractRequestContext {
                     requestId: currentReqId,
                     message  : "Writing ${bytes.size()} Bytes on stream.close()"])
 
-            _context.responseHeaders.putAll this._responseHdrs
+            _context.responseHeaders.putAll this.responseHeaders
             try {
                 _context.sendResponseHeaders(_code ?: 200, bytes.size())
                 originalOutputStream().write(bytes)

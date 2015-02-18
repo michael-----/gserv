@@ -9,8 +9,8 @@ import java.security.Principal
  */
 abstract class AbstractRequestContext implements RequestContext {
 
-    Map<String, String> requestHeaders = [:]
-    Map<String, String> responseHeaders = [:]
+    Map<String, List> requestHeaders = [:]
+    Map<String, List> responseHeaders = [:]
     InputStream requestBody
     OutputStream responseBody
     Map attributes = [:]
@@ -22,19 +22,19 @@ abstract class AbstractRequestContext implements RequestContext {
     InetSocketAddress remoteAddress
     String protocol
 
-    Map<String, String> getRequestHeaders() {
+    Map<String, List> getRequestHeaders() {
         return requestHeaders
     }
 
-    void setRequestHeaders(Map<String, String> requestHeaders) {
+    void setRequestHeaders(Map<String, List> requestHeaders) {
         this.requestHeaders = requestHeaders
     }
 
-    Map<String, String> getResponseHeaders() {
+    Map<String, List> getResponseHeaders() {
         return responseHeaders
     }
 
-    void setResponseHeaders(Map<String, String> responseHeaders) {
+    void setResponseHeaders(Map<String, List> responseHeaders) {
         this.responseHeaders = responseHeaders
     }
 
@@ -145,10 +145,4 @@ abstract class AbstractRequestContext implements RequestContext {
         ]
     }
 
-/*
-    abstract def close()
-    abstract String dump()
-    abstract Object nativeObject();
-    abstract  def setStreams(InputStream is, OutputStream os);
-    */
 }
