@@ -63,7 +63,6 @@ class FilterRunner {
                     //TODO must handle this better -
                     log.trace("FilterRunner: $theFilter threw exception: ${ex.message}.", ex)
                     log.error("FilterRunner: $theFilter threw exception: ${ex.message}.")
-                } finally {
                 }
                 return requestContext
         }//switch
