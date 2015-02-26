@@ -3,6 +3,7 @@ package io.github.javaconductor.gserv.requesthandler
 import com.sun.net.httpserver.HttpExchange
 import groovy.util.logging.Log4j
 import io.github.javaconductor.gserv.GServ
+import io.github.javaconductor.gserv.configuration.GServConfig
 
 /**
  * Created by lcollins on 12/26/2014.
@@ -13,7 +14,8 @@ class Jdk16RequestContext extends AbstractRequestContext {
     HttpExchange _exchange
     boolean _closed = false
 
-    Jdk16RequestContext(HttpExchange exchange) {
+    Jdk16RequestContext(GServConfig config, HttpExchange exchange) {
+        super(config)
         assert exchange
         this.requestBody = exchange.requestBody
         this.responseBody = exchange.responseBody
@@ -53,6 +55,10 @@ class Jdk16RequestContext extends AbstractRequestContext {
         }
         _closed = true
     }
+
+//    GServConfig config(){
+//        _config
+//    }
 
     String dump() {
         ""

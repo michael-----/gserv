@@ -70,8 +70,7 @@ class CachingPlugin extends AbstractPlugin {
                     path,
                     [(FilterOptions.PassActionParams)  : false,
                      (FilterOptions.MatchedActionsOnly): true],
-                    1) {
-                ->
+              1) { requestContext, args ->
 
                 def calcETag = weakHandler(requestContext)
                 //check the hdr
@@ -85,7 +84,7 @@ class CachingPlugin extends AbstractPlugin {
                     // etag it
                     etagIt(requestContext, calcETag, options)
                     //exchange.responseHeaders["ETag"] = calcETag
-                    nextFilter()
+                  //nextFilter()
                 }
                 return requestContext
             }

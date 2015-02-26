@@ -1,7 +1,7 @@
 /*
  * The MIT License (MIT)
  *
- * Copyright (c) 2014 Lee Collins
+ * Copyright (c) 2014-2015 Lee Collins
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,7 +44,7 @@ class CORSMode {
 @Log4j
 class CorsPlugin extends AbstractPlugin {
 
-    def allowAllHandler = { CORSConfig corsConfig ->
+    def allowAllHandler = { CORSConfig corsConfig, requestContext, args ->
         switch (requestContext.requestMethod) {
 
             case "OPTIONS":
@@ -79,14 +79,12 @@ class CorsPlugin extends AbstractPlugin {
                 } else {
                     //                  println "CorsPlugin filter: No Origin Header."
                 }
-//                println "CorsPlugin Filter: Calling chain"
-
                 requestContext
                 break;
         }
     }
 
-    def listHandler = { CORSConfig corsConfig ->
+    def listHandler = { CORSConfig corsConfig, requestContext, args ->
         log.trace "CorsPlugin.listHandler(): ${requestContext.requestMethod} - ${requestContext.requestURI} List: ${corsConfig.list}"
         switch (requestContext.requestMethod) {
             case "OPTIONS":
@@ -95,7 +93,6 @@ class CorsPlugin extends AbstractPlugin {
                 String origin = requestContext.requestHeaders.get("Origin")
                 if (!origin) {
                     log.trace("CorsPlugin.listHandler():No ORIGIN header for OPTIONS method.")
-                    //requestContext.close()
                     return requestContext
                 }
                 def host = originToHost(origin[0])
@@ -153,8 +150,6 @@ class CorsPlugin extends AbstractPlugin {
                     def maxAge = cfgForHost?.maxAge ?: (corsConfig?.maxAge ?: 3600)
                     requestContext.responseHeaders.put("Access-Control-Max-Age", ["" + maxAge])
                     log.trace("CorsPlugin.listHandler():Response HEADERS: ${requestContext.responseHeaders}")
-                    //     requestContext.sendResponseHeaders(200, 0)
-                    // requestContext.close()
                     requestContext
                 } else {
                     /// send 403 Forbidden

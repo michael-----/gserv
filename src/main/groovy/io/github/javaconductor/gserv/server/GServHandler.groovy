@@ -71,7 +71,7 @@ class GServHandler implements HttpHandler {
      * @param httpExchange
      */
     void handle(HttpExchange httpExchange) {
-        RequestContext context = new GServFactory().createRequestContext(httpExchange)
+        RequestContext context = new GServFactory().createRequestContext(_cfg, httpExchange)
         def r = new Long(requestId.addAndGet(1L))
         context.setAttribute(GServ.contextAttributes.requestId, r)
         log.trace("ServerHandler.handle(${httpExchange.requestURI.path}) #$r")

@@ -1,5 +1,7 @@
 package io.github.javaconductor.gserv.requesthandler
 
+import io.github.javaconductor.gserv.configuration.GServConfig
+
 import java.security.Principal
 
 /**
@@ -66,6 +68,8 @@ interface RequestContext {
     def setStreams(InputStream is, OutputStream os)
 
     void sendResponseHeaders(int responseCode, long size)
+
+    GServConfig config()
 
     def id()
 

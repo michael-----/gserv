@@ -1,6 +1,7 @@
 package io.github.javaconductor.gserv.requesthandler
 
 import io.github.javaconductor.gserv.GServ
+import io.github.javaconductor.gserv.configuration.GServConfig
 
 import java.security.Principal
 
@@ -21,7 +22,12 @@ abstract class AbstractRequestContext implements RequestContext {
     InetSocketAddress localAddress
     InetSocketAddress remoteAddress
     String protocol
+    GServConfig _config
 
+
+    def AbstractRequestContext(GServConfig config) {
+        _config = config
+    }
     Map<String, List> getRequestHeaders() {
         return requestHeaders
     }
@@ -143,6 +149,16 @@ abstract class AbstractRequestContext implements RequestContext {
                 remoteIP : remoteAddress.address.toString(),
                 closed   : isClosed()
         ]
+    }
+
+    GServConfig config() {
+        this._config
+    }
+
+    @Override
+    String toString() {
+        "#${id()} -> $requestMethod:$requestURI"
+//        return super.toString()
     }
 
 }
