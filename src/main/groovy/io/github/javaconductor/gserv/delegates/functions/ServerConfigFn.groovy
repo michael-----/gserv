@@ -199,7 +199,7 @@ trait ServerConfigFn {
 
         def options = [(FilterOptions.PassRouteParams): false, (FilterOptions.MatchedActionsOnly): true];
         methods.each { method ->
-            before("basicAuth($method->$path)", path, method, options, 2) { ->
+            before("basicAuth($method->$path)", path, method, options, 2) { requestContext, args ->
                 log.trace("basicAuth before()");
 
                 def userPswd = getBasicAuthUserPswd(requestContext);
